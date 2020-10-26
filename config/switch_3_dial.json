@@ -17,7 +17,7 @@
    "learningrate":0.0005,
    "momentum":0.05,
    "eps":0.05,
-   "nepisodes":11,
+   "nepisodes":501,
    "step_test":10,
    "step_target":100,
    "cuda":0
