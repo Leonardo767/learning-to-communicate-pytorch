@@ -47,7 +47,7 @@ class GridGame:
     def get_reward(self, a_t):
         # all actions cost -1 reward
         for b in range(self.opt.bs):
-            self.reward[b] = self.reward - 1
+            self.reward[b] = self.reward[b] - 1
             for n in range(self.opt.game_nagents):
                 # assess current location
                 curr_loc = torch.nonzero(
@@ -55,9 +55,9 @@ class GridGame:
                 on_left_edge = curr_loc[1].item() == 0
                 on_right_edge = curr_loc[1].item() == self.W - 1
                 on_top_edge = curr_loc[0].item() == 0
-                on_bottom_edge = curr_loc[1].item() == self.H - 1
+                on_bottom_edge = curr_loc[0].item() == self.H - 1
                 proposed_action = int(a_t[b, n].item())
-                if self.agents_will_collide(b, curr_loc, proposed_action):
+                if self._agents_will_collide(b, curr_loc, proposed_action):
                     continue
                 # move agent [b, n] according to action
                 old_loc_map = self.agent_locs[b, n]
@@ -77,24 +77,37 @@ class GridGame:
                 # update agents map for the batch
                 new_loc_map = self.agent_locs[b, n]
                 self.all_agents_map[b] = self.all_agents_map[b] + new_loc_map
-                # print(self.all_agents_map[b])
                 # after motion, return reward for s'
                 new_loc = torch.nonzero(new_loc_map, as_tuple=True)
-                self.reward[b] += self.grid[new_loc].item()
+                discovered_reward = self.grid[new_loc].item()
+                self.reward[b] += discovered_reward
+                if discovered_reward > 0.5:
+                    self.terminal[b] = 1
+        return self.reward.clone(), self.terminal.clone()
 
-    def agents_will_collide(self, batch, curr_loc, proposed_action):
+    def step(self, a_t):
+        reward, terminal = self.get_reward(a_t)
+        self.step_count += 1
+        return reward, terminal
+
+    def get_state(self, guide=False):
+        if guide:
+            return self.grid
+        return self.agent_locs
+
+    def _agents_will_collide(self, batch, curr_loc, proposed_action):
         agents_map = torch.nonzero(self.all_agents_map[batch], as_tuple=False)
         agent_locs_set = set()
         for n in agents_map:
-            agent_locs_set.add((n[1].item(), n[0].item()))
+            agent_locs_set.add((n[0].item(), n[1].item()))
         moves = [
-            (1, 0),
             (-1, 0),
+            (1, 0),
             (0, -1),
             (0, 1)
         ]
-        proposed_x = curr_loc[1].item() + moves[proposed_action][1]
         proposed_y = curr_loc[0].item() + moves[proposed_action][0]
+        proposed_x = curr_loc[1].item() + moves[proposed_action][1]
         return (proposed_y, proposed_x) in agent_locs_set
 
     def show(self, vid=True):
