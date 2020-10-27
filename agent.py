@@ -75,7 +75,7 @@ class CNetAgent:
                               opt.game_action_space_total)
             if comm_range[b, 1].item() > 0:
                 c_range = range(
-                    comm_range[b, 0].item() - 1, comm_range[b, 1].item())
+                    comm_range[b, 0].item(), comm_range[b, 1].item())
                 if not opt.model_dial:
                     if should_select_random_comm[b]:
                         comm_action[b] = self._random_choice(c_range)

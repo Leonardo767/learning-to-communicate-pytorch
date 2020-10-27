@@ -20,7 +20,7 @@ Play communication games
 
 
 def init_action_and_comm_bits(opt):
-    opt.comm_enabled = opt.game_comm_bits > 0 and opt.game_nagents > 1
+    opt.comm_enabled = opt.game_comm_bits > 0  # and opt.game_nagents > 1
     if opt.model_comm_narrow is None:
         opt.model_comm_narrow = opt.model_dial
     if not opt.model_comm_narrow and opt.game_comm_bits > 0:

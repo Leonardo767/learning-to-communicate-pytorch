@@ -15,7 +15,9 @@ class GridGame:
             'RIGHT': 4
         })
         if self.opt.game_action_space != len(self.game_actions):
-            raise ValueError("Config action space doesn't match game.")
+            raise ValueError(
+                "Config action space doesn't match game's ({} != {}).".format(
+                    self.opt.game_action_space, len(self.game_actions)))
 
         self.H = size[0]
         self.W = size[1]
