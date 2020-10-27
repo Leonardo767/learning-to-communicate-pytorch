@@ -93,7 +93,24 @@ class GridGame:
     def get_state(self, guide=False):
         if guide:
             return self.grid
+        # non-guides only know their location
         return self.agent_locs
+
+    def get_action_range(self):
+        # only a function of the game
+        bs = self.opt.bs
+        action_space_max = 3  # range = [0, 3]
+        comm_realval_space_max = action_space_max + 1 + 2 ** self.opt.game_comm_bits
+        # define ranges per agent
+        # pylint: disable=not-callable
+        action_range = torch.tensor([0, action_space_max])
+        comm_range = torch.tensor(
+            [action_space_max + 1, comm_realval_space_max])
+        # pylint: enable=not-callable
+        # repeat for all agent batches
+        action_range = action_range.repeat((bs, 1))
+        comm_range = comm_range.repeat((bs, 1))
+        return action_range, comm_range
 
     def _agents_will_collide(self, batch, curr_loc, proposed_action):
         agents_map = torch.nonzero(self.all_agents_map[batch], as_tuple=False)

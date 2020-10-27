@@ -10,8 +10,7 @@ from pathlib import Path
 from utils.dotdic import DotDic
 from arena import Arena
 from agent import CNetAgent
-from envs.switch_game import SwitchGame
-from envs.switch_cnet import SwitchCNet
+from envs.cnet import CNet
 
 """
 Play communication games
@@ -41,21 +40,28 @@ def init_opt(opt):
     if opt.eps_decay is None:
         opt.eps_decay = 1.0
     opt = init_action_and_comm_bits(opt)
+    opt.game = opt.game.lower()
     return opt
 
 
 def create_game(opt):
-    game_name = opt.game.lower()
+    game_name = opt.game
     if game_name == 'switch':
+        from envs.switch_game import SwitchGame
         return SwitchGame(opt)
+    elif game_name == 'grid':
+        from envs.grid_game import GridGame
+        return GridGame(opt, (10, 10))
     else:
         raise Exception('Unknown game: {}'.format(game_name))
 
 
 def create_cnet(opt):
-    game_name = opt.game.lower()
+    game_name = opt.game
     if game_name == 'switch':
-        return SwitchCNet(opt)
+        return CNet(opt)
+    elif game_name == 'grid':
+        return CNet(opt)
     else:
         raise Exception('Unknown game: {}'.format(game_name))
 
