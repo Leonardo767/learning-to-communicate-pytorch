@@ -62,16 +62,16 @@ class GridGame:
                 # move agent [b, n] according to action
                 old_loc_map = self.agent_locs[b, n]
                 self.all_agents_map[b] = self.all_agents_map[b] - old_loc_map
-                if proposed_action == 0 and not on_top_edge:  # up
+                if proposed_action == 1 and not on_top_edge:  # up
                     self.agent_locs[b, n, :, :] = torch.roll(
                         self.agent_locs[b, n], -1, dims=0)
-                elif proposed_action == 1 and not on_bottom_edge:  # down
+                elif proposed_action == 2 and not on_bottom_edge:  # down
                     self.agent_locs[b, n, :, :] = torch.roll(
                         self.agent_locs[b, n], 1, dims=0)
-                elif proposed_action == 2 and not on_left_edge:  # left
+                elif proposed_action == 3 and not on_left_edge:  # left
                     self.agent_locs[b, n, :, :] = torch.roll(
                         self.agent_locs[b, n], -1, dims=1)
-                elif proposed_action == 3 and not on_right_edge:  # right
+                elif proposed_action == 4 and not on_right_edge:  # right
                     self.agent_locs[b, n, :, :] = torch.roll(
                         self.agent_locs[b, n], 1, dims=1)
                 # update agents map for the batch
@@ -99,11 +99,11 @@ class GridGame:
     def get_action_range(self):
         # only a function of the game
         bs = self.opt.bs
-        action_space_max = 3  # range = [0, 3]
+        action_space_max = 5  # range = int([1, 5))  0 = no action
         comm_realval_space_max = action_space_max + 1 + 2 ** self.opt.game_comm_bits
         # define ranges per agent
         # pylint: disable=not-callable
-        action_range = torch.tensor([0, action_space_max])
+        action_range = torch.tensor([1, action_space_max])
         comm_range = torch.tensor(
             [action_space_max + 1, comm_realval_space_max])
         # pylint: enable=not-callable
@@ -123,8 +123,8 @@ class GridGame:
             (0, -1),
             (0, 1)
         ]
-        proposed_y = curr_loc[0].item() + moves[proposed_action][0]
-        proposed_x = curr_loc[1].item() + moves[proposed_action][1]
+        proposed_y = curr_loc[0].item() + moves[proposed_action - 1][0]
+        proposed_x = curr_loc[1].item() + moves[proposed_action - 1][1]
         return (proposed_y, proposed_x) in agent_locs_set
 
     def show(self, vid=True):
