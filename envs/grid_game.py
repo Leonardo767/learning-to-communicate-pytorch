@@ -41,7 +41,8 @@ class GridGame:
         n_agents = self.opt.game_nagents
         if n_agents > self.H * self.W:
             raise ValueError("Too many agents to fit inside grid.")
-        self.agent_locs = torch.zeros(bs, n_agents, self.H, self.W)
+        self.agent_locs = torch.zeros(
+            bs, n_agents, self.H, self.W, dtype=torch.long)
         self.all_agents_map = torch.zeros(bs, self.H, self.W)
         for b in range(bs):
             # per batch, build world of n_agents, shuffle them around the grid
@@ -111,19 +112,23 @@ class GridGame:
     def get_action_range(self):
         # only a function of the game
         bs = self.opt.bs
+        action_dtype = torch.long
         # action range = int([0, 5))  0 = no action
         action_space_max = len(self.game_actions)
         comm_realval_space_max = action_space_max + 1 + 2 ** self.opt.game_comm_bits
         # define ranges per agent
         # pylint: disable=not-callable
-        action_range = torch.tensor([0, action_space_max])
+        action_range = torch.tensor([0, action_space_max], dtype=action_dtype)
         comm_range = torch.tensor(
-            [action_space_max, self.opt.game_action_space_total])
+            [action_space_max, self.opt.game_action_space_total], dtype=action_dtype)
         # pylint: enable=not-callable
         # repeat for all agent batches
         action_range = action_range.repeat((bs, 1))
         comm_range = comm_range.repeat((bs, 1))
         return action_range, comm_range
+
+    def get_comm_limited(self, step, agent_id):
+        return torch.ones(self.opt.bs, dtype=torch.long)
 
     def _agents_will_collide(self, batch, curr_loc, proposed_action):
         agents_map = torch.nonzero(self.all_agents_map[batch], as_tuple=False)

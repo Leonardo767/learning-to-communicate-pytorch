@@ -120,7 +120,6 @@ class Arena:
                 agent_inputs = {
                     's_t': episode.step_records[step].s_t[:, agent_idx],
                     'messages': comm,
-                    # Hidden state
                     'hidden': episode.step_records[step].hidden[agent_idx, :],
                     'prev_action': prev_action,
                     'agent_index': batch_agent_index

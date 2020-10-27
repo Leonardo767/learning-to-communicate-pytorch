@@ -2,7 +2,7 @@
    "game":"grid",
    "game_nagents":1,
    "game_action_space":5,
-   "game_comm_limited":true,
+   "game_comm_limited":false,
    "game_comm_bits":1,
    "game_comm_sigma":2,
    "nsteps":6,

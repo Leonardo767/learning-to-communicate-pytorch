@@ -108,33 +108,45 @@ def run_trial(opt, result_path=None, verbose=False):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--config_path', type=str,
-                        help='path to existing options file')
-    parser.add_argument('-r', '--results_path', type=str,
-                        help='path to results directory')
-    parser.add_argument('-n', '--ntrials', type=int,
-                        default=1, help='number of trials to run')
-    parser.add_argument('-s', '--start_index', type=int,
-                        default=0, help='starting index for trial output')
-    parser.add_argument('-v', '--verbose', action='store_true',
-                        help='prints training epoch rewards if set')
-    args = parser.parse_args()
+    parsing = False
+    if parsing:
+        parser = argparse.ArgumentParser()
+        parser.add_argument('-c', '--config_path', type=str,
+                            help='path to existing options file')
+        parser.add_argument('-r', '--results_path', type=str,
+                            help='path to results directory')
+        parser.add_argument('-n', '--ntrials', type=int,
+                            default=1, help='number of trials to run')
+        parser.add_argument('-s', '--start_index', type=int,
+                            default=0, help='starting index for trial output')
+        parser.add_argument('-v', '--verbose', action='store_true',
+                            help='prints training epoch rewards if set')
+        args = parser.parse_args()
+        config_path = args.config_path
+        ntrials = args.ntrials
+        start_idx = args.start_index
+        result_path = args.results_path
+        verbose = args.verbose
+    else:
+        config_path = 'config/grid_3_dial.json'
+        ntrials = 1
+        start_index = 0
+        result_path = False
+        verbose = False
 
-    opt = DotDic(json.loads(open(args.config_path, 'r').read()))
+    opt = DotDic(json.loads(open(config_path, 'r').read()))
 
-    result_path = args.results_path
     # if args.results_path:
     #     result_path = args.config_path and os.path.join(Path(args.config_path).stem, args.results_path) or \
     #         os.path.join(args.results_path, 'result-',
     #                      datetime.datetime.now().isoformat())
     #     print(result_path)
 
-    for i in range(args.ntrials):
+    for i in range(ntrials):
         trial_result_path = None
         if result_path:
             trial_result_path = result_path + '_' + \
-                str(i + args.start_index) + '.csv'
+                str(i + start_index) + '.csv'
         trial_opt = copy.deepcopy(opt)
         run_trial(trial_opt, result_path=trial_result_path,
-                  verbose=args.verbose)
+                  verbose=verbose)
