@@ -7,6 +7,16 @@ import os
 class GridGame:
     def __init__(self, opt, size):
         self.opt = opt
+        self.game_actions = DotDic({
+            'NOTHING': 0,
+            'UP': 1,
+            'DOWN': 2,
+            'LEFT': 3,
+            'RIGHT': 4
+        })
+        if self.opt.game_action_space != len(self.game_actions):
+            raise ValueError("Config action space doesn't match game.")
+
         self.H = size[0]
         self.W = size[1]
         self.goal_reward = 10
@@ -62,16 +72,16 @@ class GridGame:
                 # move agent [b, n] according to action
                 old_loc_map = self.agent_locs[b, n]
                 self.all_agents_map[b] = self.all_agents_map[b] - old_loc_map
-                if proposed_action == 1 and not on_top_edge:  # up
+                if proposed_action == self.game_actions.UP and not on_top_edge:
                     self.agent_locs[b, n, :, :] = torch.roll(
                         self.agent_locs[b, n], -1, dims=0)
-                elif proposed_action == 2 and not on_bottom_edge:  # down
+                elif proposed_action == self.game_actions.DOWN and not on_bottom_edge:
                     self.agent_locs[b, n, :, :] = torch.roll(
                         self.agent_locs[b, n], 1, dims=0)
-                elif proposed_action == 3 and not on_left_edge:  # left
+                elif proposed_action == self.game_actions.LEFT and not on_left_edge:
                     self.agent_locs[b, n, :, :] = torch.roll(
                         self.agent_locs[b, n], -1, dims=1)
-                elif proposed_action == 4 and not on_right_edge:  # right
+                elif proposed_action == self.game_actions.RIGHT and not on_right_edge:
                     self.agent_locs[b, n, :, :] = torch.roll(
                         self.agent_locs[b, n], 1, dims=1)
                 # update agents map for the batch
@@ -99,13 +109,14 @@ class GridGame:
     def get_action_range(self):
         # only a function of the game
         bs = self.opt.bs
-        action_space_max = 5  # range = int([1, 5))  0 = no action
+        # action range = int([0, 5))  0 = no action
+        action_space_max = len(self.game_actions)
         comm_realval_space_max = action_space_max + 1 + 2 ** self.opt.game_comm_bits
         # define ranges per agent
         # pylint: disable=not-callable
-        action_range = torch.tensor([1, action_space_max])
+        action_range = torch.tensor([0, action_space_max])
         comm_range = torch.tensor(
-            [action_space_max + 1, comm_realval_space_max])
+            [action_space_max, self.opt.game_action_space_total])
         # pylint: enable=not-callable
         # repeat for all agent batches
         action_range = action_range.repeat((bs, 1))
