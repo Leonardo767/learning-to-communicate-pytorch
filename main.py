@@ -51,8 +51,8 @@ def create_game(opt):
         from envs.switch_game import SwitchGame
         return SwitchGame(opt)
     elif game_name == 'grid':
-        from envs.grid_game import GridGame
-        return GridGame(opt, (10, 10))
+        from envs.grid_game_flat import GridGame
+        return GridGame(opt, (4, 4))
     else:
         raise Exception('Unknown game: {}'.format(game_name))
 

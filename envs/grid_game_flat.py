@@ -12,11 +12,11 @@ class GridGame:
             'UP': 1,
             'DOWN': 2,
             'LEFT': 3,
-            'RIGHT': 4
+            'RIGHT': 4 
         })
         if self.opt.game_action_space != len(self.game_actions):
             raise ValueError(
-                "Config action space doesn't match game's ({} != {}).".format(
+                "Config action space doesn't  match game's ({} != {}).".format(
                     self.opt.game_action_space, len(self.game_actions)))
 
         self.H = size[0]
@@ -85,7 +85,7 @@ class GridGame:
                 # after motion, return reward for s'
                 discovered_reward = self.grid[next_loc].item()
                 if next_loc == self.reward_location:
-                    self.reward[b] = self.goal_reward
+                    self.reward[b] = self.reward[b] + self.goal_reward
                     self.terminal[b] = 1
         return self.reward.clone(), self.terminal.clone()
 
@@ -95,10 +95,15 @@ class GridGame:
         return reward, terminal
 
     def get_state(self, guide=False):
-        if guide:
-            return self.grid
-        # non-guides only know their location
-        return torch.reshape(self.agent_locs, (32, 100))
+        state = torch.zeros(
+            self.opt.bs, self.opt.game_nagents, dtype=torch.long)
+        # if guide:
+        #     return self.grid
+        # # non-guides only know their location
+        for b in range(self.opt.bs):
+            for n in range(self.opt.game_nagents):
+                state[b, n] = torch.argmax(self.agent_locs[b, n])
+        return state
 
     def get_action_range(self, step, agent_id):
         # only a function of the game

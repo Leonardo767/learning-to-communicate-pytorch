@@ -21,7 +21,7 @@ class CNet(nn.Module):
 
         # Set up inputs
         self.agent_lookup = nn.Embedding(opt.game_nagents, opt.model_rnn_size)
-        self.state_lookup = nn.Embedding(2, opt.model_rnn_size)
+        self.state_lookup = nn.Embedding(16, opt.model_rnn_size)
 
         # Action aware
         self.prev_message_lookup = None

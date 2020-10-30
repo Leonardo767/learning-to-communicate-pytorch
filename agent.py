@@ -137,6 +137,8 @@ class CNetAgent:
                     total_loss[b] = total_loss[b] + loss_t
         loss = total_loss.sum()
         loss = loss/(self.opt.bs * self.opt.game_nagents)
+        if loss.item() == 0:
+            print("loss = 0")
         return loss
 
     def learn_from_episode(self, episode):
