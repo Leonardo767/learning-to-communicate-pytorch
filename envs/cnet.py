@@ -108,14 +108,15 @@ class CNet(nn.Module):
             if prev_message is not None:
                 z_u += self.prev_message_lookup(prev_message)
         z_m = self.messages_mlp(messages.view(-1, self.comm_size))
-        print(z_a.size())
-        print(z_o.size())
-        print(z_u.size())
-        print(z_m.size())
+        # print(z_a.size())
+        # print(z_o.size())
+        # print(z_u.size())
+        # print(z_m.size())
         z = z_a + z_o + z_u + z_m
         z = z.unsqueeze(1)
 
         rnn_out, h_out = self.rnn(z, hidden)
         outputs = self.outputs(rnn_out[:, -1, :].squeeze())
+        # print("Successful output!")
 
         return h_out, outputs

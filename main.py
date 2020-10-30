@@ -11,6 +11,7 @@ from utils.dotdic import DotDic
 from arena import Arena
 from agent import CNetAgent
 from envs.cnet import CNet
+import torch
 
 """
 Play communication games
@@ -108,6 +109,7 @@ def run_trial(opt, result_path=None, verbose=False):
 
 
 if __name__ == '__main__':
+    torch.autograd.set_detect_anomaly(True)
     parsing = False
     if parsing:
         parser = argparse.ArgumentParser()
