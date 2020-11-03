@@ -1,5 +1,5 @@
 *~
-.venv
+.venv/
 venv
 !.gitkeep
 tmp
@@ -15,3 +15,4 @@ saved_models/
 logs/
 results/
 data/
+.vscode/
